@@ -1,0 +1,7 @@
+{
+    "commentTranslate.targetLanguage": "es",
+    "java.project.sourcePaths": [
+        "src/com/alura/conversor/principal",
+        "src"
+    ]
+}
