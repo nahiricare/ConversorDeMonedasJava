@@ -1,68 +1,78 @@
-package com.alura.conversor.Main;
-
 // Import de clases de otros paquetes
 import com.alura.conversor.calculos.ConsultaMoneda;
 import com.alura.conversor.calculos.GeneradorDeCalculos;
 import com.alura.conversor.modelos.Moneda;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
-public class Main {
-    public static void main(String[] args) {
+public static void main(String[] args) {
+    //Iniciamos el scanner para leer los datos ingresados
+    Scanner lectura = new Scanner(System.in);
+    // Instanciamos una nueva consulta
+    ConsultaMoneda consulta = new ConsultaMoneda();
+    // Instanciamos el generador de calculos matematicos
+    GeneradorDeCalculos generador = new GeneradorDeCalculos();
+    //Generamos una lista para guardar el historial
+    List<String> historial = new ArrayList<>();
 
-           // Primero creamos el objeto Scanner una sola vez para todos los ingresos.
-            Scanner lectura = new Scanner(System.in);
-
-            //Instancia una nueva consulta (vinculado a ConsultaMoneda)
-            ConsultaMoneda consulta = new ConsultaMoneda();
-
-
-
+    // un bucle para que no se cierre el sistema despues de cada consulta
+    while (true) {
         System.out.println("****************************************");
         System.out.println("Bienvenido al conversor de monedas");
+        System.out.println("Escriba 'SALIR' para terminar y generar el reporte.");
         System.out.println("****************************************");
-        System.out.println("Conversiones disponibles:");
-        System.out.println("ARS - Peso argentino");
-        System.out.println("BOB - Boliviano boliviano");
-        System.out.println("BRL - Real brasileño");
-        System.out.println("COP - Peso colombiano");
-        System.out.println("USD - Dólar estadounidense");
 
-        System.out.println("Por favor ingrese el código (3 letras) de la moneda de origen (moneda que desea cambiar): ");
-
-        // Usamos el objeto para leer y guardar lo ingresado en un String
+        System.out.println("Ingrese la moneda de origen (ej: USD):");
         String base_code = lectura.nextLine().toUpperCase();
 
-        //Solicitamos el ingreso del total a cambiar
-        System.out.println("Por favor, ingrese el monto que desea cambiar");
-
-        //Uso .nextLine para leer toda la linea como un texto y luego transformar a número para evitar errores.
-        //La clase GeneradorDeCalculos toma Cantidad para hacer los calculos matematicos.
-        double cantidad = Double.parseDouble(lectura.nextLine());
-
-
-        System.out.println("Por favor ingrese el código (3 letras) de la moneda de destino (moneda que desea obtener): ");
-
-        // Usamos el objeto para leer y guardar lo ingresado en un String
-        String target_code = lectura.nextLine().toUpperCase();
-
-
-        // Llama al metodo buscarMoneda (de la clase ConsultaMoneda) pasando los códigos segun el ISO4217 (estándar internacional que define códigos de tres letras para identificar cada moneda del mundo)
-        Moneda moneda = consulta.buscarMoneda(base_code, target_code);
-
-            System.out.printf("La tasa de cambio es: %.6f %n", moneda.conversion_rate());
-
-
-            //Instanciamos el GeneradorDeCaluculos para la parte matemática
-            GeneradorDeCalculos generador = new GeneradorDeCalculos();
-            //Generamos el calculo matemático
-            double resultado = generador.convertir(cantidad, moneda);
-            System.out.printf("Usted obtendrá %.2f %s%n", resultado, target_code);
-
+        if (base_code.equals("SALIR")) {
+            break; // Rompe el bucle y va a la línea 56 (escritura de archivo)
         }
 
+        System.out.println("Ingrese el monto a cambiar:");
+        double cantidad = Double.parseDouble(lectura.nextLine());
 
+        System.out.println("Ingrese la moneda de destino (ej: ARS):");
+        String target_code = lectura.nextLine().toUpperCase();
+
+        try {
+            // Hacemos la consulta y el cálculo
+            Moneda moneda = consulta.buscarMoneda(base_code, target_code);
+            double resultado = generador.convertir(cantidad, moneda);
+
+            // Formateamos el mensaje
+            String mensaje = String.format("%s - Convertido %.2f [%s] a >>> %.2f [%s] (Tasa: %.6f)",
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")),
+                    cantidad, base_code, resultado, target_code, moneda.conversion_rate());
+
+            System.out.println("\n" + mensaje + "\n");
+
+            // Lo agregamos a la lista
+            historial.add(mensaje);
+
+        } catch (RuntimeException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
+
+    //por fuera del bucle armamos el documento
+    if (!historial.isEmpty()) {
+        try (java.io.FileWriter escritura = new java.io.FileWriter("historial_conversiones.txt")) {
+            escritura.write("--- REPORTE DE CONVERSIONES ---\n");
+            for (String registro : historial) {
+                escritura.write(registro + "\n");
+            }
+            System.out.println("✅ Se ha generado el archivo 'historial_conversiones.txt' con éxito.");
+        } catch (java.io.IOException e) {
+            System.out.println("❌ No se pudo guardar el historial: " + e.getMessage());
+        }
+    }
+    System.out.println("¡Gracias por usar el conversor!");
+}
 
 
     /***
