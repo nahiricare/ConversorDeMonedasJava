@@ -11,7 +11,7 @@ public class ConsultaMoneda {
 
     public Moneda buscarMoneda(String monedaBase, String monedaDestino) {
         // Formamos la URL dinámica insertando los códigos de las monedas
-        URI direccion = URI.create("https://v6.exchangerate-api.com/v6/TU_API_KEY/pair/" +
+        URI direccion = URI.create("https://v6.exchangerate-api.com/v6/7acc027ff55c55e0cfc51ab7/pair/" +
                 monedaBase + "/" + monedaDestino);
 
         // El HttpClient es el que hará la petición

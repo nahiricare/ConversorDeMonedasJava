@@ -50,14 +50,16 @@ public class Main {
         // Llama al metodo buscarMoneda (de la clase ConsultaMoneda) pasando los códigos segun el ISO4217 (estándar internacional que define códigos de tres letras para identificar cada moneda del mundo)
         Moneda moneda = consulta.buscarMoneda(base_code, target_code);
 
-            System.out.println("La tasa de cambio es: " + moneda.conversion_rate());
-        }
+            System.out.printf("La tasa de cambio es: %.6f %n", moneda.conversion_rate());
 
-        //Instanciamos el GeneradorDeCaluculos para la parte matemática
-        GeneradorDeCalculos generador = new GeneradorDeCalculos();
-        //Generamos el calculo matemático
-        double resultado = generador.convertir(cantidad, moneda);
-            ///// me quede acá!!!
+
+            //Instanciamos el GeneradorDeCaluculos para la parte matemática
+            GeneradorDeCalculos generador = new GeneradorDeCalculos();
+            //Generamos el calculo matemático
+            double resultado = generador.convertir(cantidad, moneda);
+            System.out.printf("Usted obtendrá %.2f %s%n", resultado, target_code);
+
+        }
 
 
     }
